@@ -1,0 +1,62 @@
+/* 2019-12-20 lyn add */
+/* responsive */
+.container {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 15px;
+  padding-right: 15px
+}
+
+@media (min-width:992px) {
+  .container {
+    width: 992px
+  }
+}
+
+@media (min-width:1200px) {
+  .container {
+    width: 1200px
+  }
+}
+
+.container-fluid {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 15px;
+  padding-right: 15px
+}
+
+@media (min-width:768px) {
+
+  .container-fluid>.navbar-collapse,
+  .container-fluid>.navbar-header,
+  .container>.navbar-collapse,
+  .container>.navbar-header {
+    margin-right: 0;
+    margin-left: 0
+  }
+}
+
+@media (min-width:768px) {
+
+  .navbar>.container .navbar-brand,
+  .navbar>.container-fluid .navbar-brand {
+    margin-left: -15px
+  }
+}
+
+.clearfix:after,
+.clearfix:before,
+.container-fluid:after,
+.container-fluid:before,
+.container:after,
+.container:before {
+  content: " ";
+  display: table
+}
+
+.clearfix:after,
+.container-fluid:after,
+.container:after {
+  clear: both
+}

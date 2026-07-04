@@ -1,0 +1,14 @@
+CACHE MANIFEST
+# version 2018-11-15 16:12
+
+CACHE:
+https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0.rc2/echarts.min.js
+https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.4.0/index.js
+https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.4.0/theme-chalk/index.css
+https://cdn.bootcss.com/vue/2.5.17/vue.min.js
+https://cdn.bootcss.com/vuex/3.0.1/vuex.min.js
+https://cdn.bootcss.com/vue-router/3.0.1/vue-router.min.js
+https://cdn.bootcss.com/axios/0.18.0/axios.min.js
+
+NETWORK:*
+
