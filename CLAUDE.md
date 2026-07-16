@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案簡介
 
-FinFolio — 一個模擬加密貨幣交易所跟單排行榜的個人作品集網站（交易員排行榜、含損益圖表的交易員詳情頁、「我的跟单」儀表板、即時行情與 K 線、通知中心）。這是一個**沒有真實後端**的專案：交易員／排行榜／損益資料都來自 `src/data/mockTraders.js`，登入／註冊接受任何帳密（模擬驗證）。唯一真實串接的外部資料是 `/market` 與 `/market/:id`（呼叫 CoinGecko 公開 API 取得即時加密貨幣價格與 K 線），這兩頁的介面文案會明確標示「真實市場資料」，跟其餘頁面「模擬示例資料」的聲明區分開來，不要混淆兩者。除非使用者明確要求，否則不要幫其餘頁面加上真實 API 串接。
+FinFolio — 一個模擬加密貨幣交易所跟單排行榜的個人作品集網站（交易員排行榜、含損益圖表的交易員詳情頁、「我的跟单」儀表板、即時行情與 K 線、通知中心）。
+
+**這個專案現在有一個真實後端**（`server/`，Node + Express + SQLite），負責三件事：(1) 真實認證（`bcrypt` 密碼雜湊 + JWT），(2) 跟單設定的持久化（每個 user 一份，存 SQLite），(3) 聚合損益以 `decimal.js` 計算。前端經 webpack devServer 的 proxy（`/api` → `http://localhost:8888`，且會去掉 `/api` 前綴）呼叫後端。詳見下方「後端」章節。
+
+交易員本身的資料（績效／資金曲線／交易紀錄）**仍是模擬資料**，來自 `src/data/mockTraders.js`。真實串接的外部資料是 `/market` 與 `/market/:id`（呼叫 CoinGecko 公開 API 取得即時加密貨幣價格與 K 線）。介面上會區分「真實市場資料」與「模擬示例資料」，不要混淆。除非使用者明確要求，否則不要幫交易員相關頁面改接真實交易所資料。
 
 ## 常用指令
 
@@ -14,7 +18,14 @@ npm run build    # 打包到 dist/ 的正式環境版本（node build/build.js�
 npm run build --report   # 正式環境打包 + 顯示 bundle analyzer 報告
 ```
 
-這個 repo 沒有設定測試套件，也沒有設定 linter——不要自行編造 `npm test` 或 `npm run lint` 這類指令。
+前端沒有 linter，也沒有前端測試套件——不要自行編造前端的 `npm test`／`npm run lint`。**後端有測試**：`cd server && npm test`（Node 內建 test runner，跑 `server/test/pnl.test.js` 的 Decimal P&L 測試）。
+
+開發時需要**同時啟動後端與前端**：
+```bash
+cd server && npm install && npm start   # 後端 Express，監聽 :8888
+# 另開終端機
+npm run dev                             # 前端 :8081，/api 自動 proxy 到 :8888
+```
 
 若只想確認程式碼能否編譯、不需要啟動 dev server：
 ```bash
@@ -33,12 +44,17 @@ Vue 2.5（只用 Options API，沒有 Composition API）+ Vuex 3 + Vue Router 3 
 `/login` 與 `/register` 是頂層路由（沒有 navbar／footer）。其餘頁面都包在 `basic` 這個 layout 元件底下（`src/components/common/basic.vue` = navbar + `router-view` + footer）：`/`（首頁）、`/leaderboard`、`/trader/:id`、`/following`、`/market`、`/market/:id`（`id` 是 CoinGecko 的幣種代碼，例如 `bitcoin`）。**沒有路由層級的登入守衛**——`router.beforeEach` 只處理 `NProgress` 跟 `document.title`。登入攔截改成在「動作發生的當下」才擋，透過 `src/utils/requireLogin.js`（檢查 `store.state.TOKEN`，沒有的話跳出提示並導向 `/login`）。新增需要登入才能用的功能時，請沿用這個模式，不要另外加路由守衛。
 
 ### 狀態管理（`src/store/index.js`）
-一個小而扁平的 Vuex store，沒有 modules／namespace。`TOKEN`／`USERID`／`USERINFO` 存在 `sessionStorage`（跟著分頁 session 走，登出就清除）。`followedTraders`／`readNotificationIds` 存在 `localStorage`（跨 session 保留——這些是使用者偏好／展示用的互動狀態，不是登入驗證資訊）。之後如果有新的東西需要持久化，請沿用同樣的「初始 state 從 storage 讀回來、mutation 裡寫回 storage」的模式。
+一個小而扁平的 Vuex store，沒有 modules／namespace，但**有 actions**。`TOKEN`／`USERID`／`USERINFO` 存在 `sessionStorage`（跟著分頁 session 走，登出就清除）。`readNotificationIds` 仍存 `localStorage`（展示用互動狀態，非本次後端化範圍）。
 
-`followedTraders` 是用交易員 id 當 key 的物件（不是純 id 陣列），每筆存 `{copyMode, allocationUsd, stopLossPct, followedAt}`——這是模擬「跟單設定」而不是單純一鍵跟隨。`store/index.js` 裡的 `loadFollowedTraders()` 會把舊版（純 id 陣列的 `followedTraderIds`）一次性遷移成新格式，之後不會再有這個 key，不用特別處理相容性。物件的新增／刪除用 `FOLLOW_TRADER`／`UNFOLLOW_TRADER` 兩個 mutation，因為是物件的動態 key，內部要用全域 `Vue.set`／`Vue.delete` 才能觸發響應式更新。
+**`followedTraders` 已改為由後端提供**，不再存 localStorage：初始為 `{}`，登入後由 action 從後端載入。它仍是用交易員 id 當 key 的物件，每筆 `{copyMode, allocationUsd, stopLossPct, followedAt}`。相關流程走 **actions**（都呼叫 `src/utils/api.js`）：`login`／`register`（存 token + user，login 完會 `loadFollows`）、`loadFollows`（回填 `followedTraders`）、`followTrader`／`unfollowTrader`。對應 mutations 是 `SET_FOLLOWS`（整包取代）／`SET_FOLLOW`／`REMOVE_FOLLOW`——動態 key 一樣要用 `Vue.set`／`Vue.delete`。`main.js` 在啟動時若 `sessionStorage` 有 token 會 `dispatch('loadFollows')`，讓重新整理也能還原跟單。
+
+`src/utils/api.js` 是後端 fetch 封裝：所有請求走 `/api` 前綴（proxy 到 :8888），token **直接從 `sessionStorage` 讀**（刻意不 import store，避免 `store ↔ api` 循環相依）。
 
 ### 跟單設定流程
-排行榜／交易員詳情頁點「跟隨」不是直接切換，而是先跳出 `src/components/leaderboard/copySettingsModal.vue`（`el-dialog`，設定跟單模式／分配金額／止損比例），確認後才 commit `FOLLOW_TRADER`。已跟隨的狀態下點擊會直接 `UNFOLLOW_TRADER`，不會再跳窗。`card.vue`／`detail.vue` 各自持有 `showCopyModal` 開關；`el-dialog` 務必保留 `append-to-body="true"`，否則對話框裡的點擊會被卡片本身的 `@click="goDetail"` 誤觸發導航。
+排行榜／交易員詳情頁點「跟隨」不是直接切換，而是先跳出 `src/components/leaderboard/copySettingsModal.vue`（`el-dialog`，設定跟單模式／分配金額／止損比例），確認後才 `dispatch('followTrader')`（呼叫後端 `PUT /follows/:id`）。已跟隨的狀態下點擊會 `dispatch('unfollowTrader')`（`DELETE /follows/:id`），不會再跳窗。`card.vue`／`detail.vue` 各自持有 `showCopyModal` 開關；`el-dialog` 務必保留 `append-to-body="true"`，否則對話框裡的點擊會被卡片本身的 `@click="goDetail"` 誤觸發導航。
+
+### 後端（`server/`，Node + Express + SQLite）
+`server/src/` 下：`db.js`（better-sqlite3，`users`／`follows` 兩張表；金額欄位 `allocation_usd` 以 **TEXT 存精確小數字串**，不用 REAL 浮點）、`auth.js`（`bcryptjs` 雜湊、`jsonwebtoken` 簽發/驗證、`requireAuth` 中介層）、`pnl.js`（**用 `decimal.js` 算聚合損益**，交易員報酬率是後端權威 seed `TRADER_RETURNS`，不信任前端傳入的數字）、`index.js`（Express 路由）。端點：`POST /auth/register`、`POST /auth/login`、`GET /me`、`GET/PUT/DELETE /follows[/:traderId]`、`GET /follows/pnl`。前端經 proxy 打 `/api/*`，`/api` 前綴會被去掉。`server/test/pnl.test.js` 用 Node 內建 test runner 覆蓋 P&L（含浮點誤差情境）。DB 檔在 `server/data/`（已 gitignore）。改金額相關邏輯時務必維持「TEXT 儲存 + decimal.js 運算」，不要退回浮點。
 
 ### 即時行情與 K 線（`src/utils/marketApi.js`、`src/components/market/`）
 `fetchMarketPrices()` 呼叫 CoinGecko `/simple/price`（免費、不需金鑰）一次拿 BTC/ETH/SOL/BNB/XRP 的價格與 24h 漲跌，`market/list.vue` 每 45 秒自動輪詢＋手動刷新按鈕，背景刷新失敗時保留舊資料只加提示文字，不會整頁清空。`fetchOhlc()` 呼叫 `/coins/{id}/ohlc` 拿 K 線資料，**回傳格式是 `[時間戳,開,高,低,收]`，但 ECharts candlestick 需要的順序是 `[開,收,低,高]`**——`market/detail.vue` 的 `renderChart()` 裡有做這個重新排列，之後如果動到這段邏輯要小心順序別搞錯。

@@ -66,7 +66,9 @@ export default {
     toggleFollow() {
       requireLogin(() => {
         if (this.isFollowing) {
-          this.$store.commit('UNFOLLOW_TRADER', this.trader.id)
+          this.$store.dispatch('unfollowTrader', this.trader.id).catch(() => {
+            this.$message.error(this.$t('message.error'))
+          })
         } else {
           this.showCopyModal = true
         }

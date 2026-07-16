@@ -87,28 +87,33 @@ export default {
   },
   store,
   methods: {
-    // 登陆（演示用模拟登录，不连接真实后端）
+    // 登陆（呼叫真实后端：bcrypt 验证 + JWT）
     login() {
-      this.$refs.form.validate((res) => {
-        if (res) {
-          this.loginLoading = true
-          setTimeout(() => {
-            this.$store.commit('LOGIN', 'mock-token-' + Date.now())
-            this.$store.commit('USERInfo', { id: 1, name: this.formModel.cellPhone })
-            if (this.formModel.isSavePassword) {
-              localStorage.setItem('acpsd', JSON.stringify(this.formModel))
-            } else {
-              localStorage.removeItem('acpsd')
-            }
-            this.loginLoading = false
-            this.$message({
-              message: this.$i18n.t('message.login_success'),
-              type: 'success',
-              showClose: true,
-              center: true
-            })
-            this.$router.push('/')
-          }, 300)
+      this.$refs.form.validate(async (res) => {
+        if (!res) return
+        this.loginLoading = true
+        try {
+          await this.$store.dispatch('login', {
+            email: this.formModel.cellPhone,
+            password: this.formModel.password
+          })
+          // 安全性：只记住 email，绝不将密码写入 localStorage
+          if (this.formModel.isSavePassword) {
+            localStorage.setItem('saved_email', this.formModel.cellPhone)
+          } else {
+            localStorage.removeItem('saved_email')
+          }
+          this.$message({
+            message: this.$i18n.t('message.login_success'),
+            type: 'success',
+            showClose: true,
+            center: true
+          })
+          this.$router.push('/')
+        } catch (e) {
+          this.$message.error(this.$i18n.t('message.login_failed'))
+        } finally {
+          this.loginLoading = false
         }
       })
     },
@@ -123,10 +128,13 @@ export default {
     if (this.$store.state.TOKEN) {
       this.$router.push('/')
     }
-    //获取账号密码
-    let acpsd = localStorage.getItem('acpsd')
-    if (acpsd) {
-      this.formModel = JSON.parse(acpsd)
+    // 清除旧版可能存下的明文密码（acpsd 内含 password）
+    localStorage.removeItem('acpsd')
+    // 只回填 email，不回填密码
+    const savedEmail = localStorage.getItem('saved_email')
+    if (savedEmail) {
+      this.formModel.cellPhone = savedEmail
+      this.formModel.isSavePassword = true
     }
   }
 }

@@ -39,3 +39,8 @@ new Vue({
     i18n
 });
 
+// 带 token 重新整理时，从后端重新载入跟单设定（失败静默，不阻断页面）
+if (store.state.TOKEN) {
+    store.dispatch('loadFollows').catch(() => {});
+}
+

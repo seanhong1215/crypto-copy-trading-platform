@@ -71,19 +71,23 @@ export default {
     defaultForm() {
       return { copyMode: 'ratio', allocationUsd: 500, stopLossPct: -20 }
     },
-    confirm() {
+    async confirm() {
       if (!this.form.allocationUsd || this.form.allocationUsd <= 0) {
         this.$message.warning(this.$t('copy_settings.allocation_required'))
         return
       }
-      this.$store.commit('FOLLOW_TRADER', {
-        traderId: this.trader.id,
-        copyMode: this.form.copyMode,
-        allocationUsd: this.form.allocationUsd,
-        stopLossPct: this.form.stopLossPct
-      })
-      this.$message.success(this.$t('copy_settings.follow_success', { name: this.trader.name }))
-      this.innerVisible = false
+      try {
+        await this.$store.dispatch('followTrader', {
+          traderId: this.trader.id,
+          copyMode: this.form.copyMode,
+          allocationUsd: this.form.allocationUsd,
+          stopLossPct: this.form.stopLossPct
+        })
+        this.$message.success(this.$t('copy_settings.follow_success', { name: this.trader.name }))
+        this.innerVisible = false
+      } catch (e) {
+        this.$message.error(this.$t('message.error'))
+      }
     }
   }
 }

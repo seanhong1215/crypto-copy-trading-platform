@@ -168,26 +168,37 @@ export default {
   },
   store,
   methods: {
-    // 注册（演示用模拟注册，不连接真实后端）
+    // 注册（呼叫真实后端：bcrypt 雜湊储存 + 直接签发 JWT，注册即登入）
     register() {
-      this.$refs.register_form.validate((res) => {
-        if (res) {
-          if (!this.formModel.isSure) {
-            this.$message({
-              message: this.$i18n.t('message.accept_agreement'),
-              type: 'error'
-            })
-            return
-          }
-          this.registerLoading = true
-          setTimeout(() => {
-            this.registerLoading = false
-            this.$message({
-              message: this.$i18n.t('message.register_success'),
-              type: 'success'
-            })
-            this.$router.push('/login')
-          }, 300)
+      this.$refs.register_form.validate(async (res) => {
+        if (!res) return
+        if (!this.formModel.isSure) {
+          this.$message({
+            message: this.$i18n.t('message.accept_agreement'),
+            type: 'error'
+          })
+          return
+        }
+        this.registerLoading = true
+        try {
+          await this.$store.dispatch('register', {
+            email: this.formModel.email,
+            name: this.formModel.name,
+            password: this.formModel.password
+          })
+          this.$message({
+            message: this.$i18n.t('message.register_success'),
+            type: 'success'
+          })
+          this.$router.push('/')
+        } catch (e) {
+          const msg =
+            e.code === 'email_taken'
+              ? this.$i18n.t('message.register_email_taken')
+              : this.$i18n.t('message.register_failed')
+          this.$message.error(msg)
+        } finally {
+          this.registerLoading = false
         }
       })
     },

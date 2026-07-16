@@ -25,7 +25,7 @@
           <div class="fw-stat-card">
             <div class="fw-stat-label">{{ $t('following.aggregate_pnl') }}</div>
             <div class="fw-stat-value" :class="aggregatePnlUsd >= 0 ? 'good' : 'critical'">
-              {{ signedAmount(aggregatePnlUsd) }}
+              {{ aggregatePnlDisplay }}
             </div>
           </div>
           <div class="fw-stat-card">
@@ -52,6 +52,7 @@
 <script>
 import traders from '@/data/mockTraders'
 import requireLogin from '@/utils/requireLogin'
+import { api } from '@/utils/api'
 import { cssVar, resolveAvatarColor } from '@/utils/chartTheme'
 import TraderCard from '@/components/leaderboard/card.vue'
 
@@ -59,7 +60,9 @@ export default {
   components: { TraderCard },
   data() {
     return {
-      chart: null
+      chart: null,
+      // 聚合损益由后端以 Decimal 计算（依使用者每笔跟单的 allocationUsd）
+      pnlData: null
     }
   },
   computed: {
@@ -69,28 +72,43 @@ export default {
     followedTraders() {
       return traders.filter((t) => !!this.$store.state.followedTraders[t.id])
     },
+    // 从后端结果取值（字串金额 → Number 供样式判断正负）
     aggregatePnlUsd() {
-      return this.followedTraders.reduce((sum, t) => sum + t.monthProfitUsd, 0)
+      return this.pnlData ? Number(this.pnlData.aggregatePnlUsd) : 0
+    },
+    // 显示时保留后端 Decimal 的两位精度字串
+    aggregatePnlDisplay() {
+      const raw = this.pnlData ? this.pnlData.aggregatePnlUsd : '0.00'
+      const n = Number(raw)
+      return (n >= 0 ? '+$' : '-$') + Math.abs(n).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
     },
     avgReturnRatePct() {
-      if (!this.followedTraders.length) return 0
-      const total = this.followedTraders.reduce((sum, t) => sum + t.monthReturnRatePct, 0)
-      return total / this.followedTraders.length
+      return this.pnlData ? this.pnlData.avgReturnPct : 0
     }
   },
   watch: {
     followedTraders() {
+      this.loadPnl()
       this.$nextTick(this.renderChart)
     }
   },
   mounted() {
     if (this.followedTraders.length) {
+      this.loadPnl()
       this.$nextTick(this.renderChart)
     }
   },
   methods: {
     goLogin() {
       requireLogin(() => {})
+    },
+    // 向后端取 Decimal 聚合损益（失败静默保留旧值）
+    loadPnl() {
+      if (!this.isLoggedIn) return
+      api.getPnl().then((d) => { this.pnlData = d }).catch(() => {})
     },
     formatNumber(n) {
       return Math.abs(n).toLocaleString('en-US')

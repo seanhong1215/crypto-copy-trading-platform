@@ -106,7 +106,7 @@ export default {
         welcome: '欢迎登录',
         login_tip: '使用昵称/邮箱/手机/员工号登入你的帐户',
         login_placeholder: '昵称/邮箱/手机/员工号',
-        remember_password: '记住密码',
+        remember_password: '记住账号',
         no_account: '没有账号',
         to_register: '立即注册',
         entry_login: '请输入登录账号',
@@ -198,6 +198,9 @@ export default {
     message: {
         login_success: '登录成功',
         register_success: '注册成功',
+        login_failed: '登录失败，请检查账号或密码',
+        register_email_taken: '此邮箱已被注册',
+        register_failed: '注册失败，请稍后再试',
         wrong_password: '账号或密码错误',
         get_verify_code: '请先获取验证码',
         inner_error: '请求异常',
