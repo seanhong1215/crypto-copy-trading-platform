@@ -54,13 +54,13 @@
 |---|---|
 | 🔗 線上 Demo / Live Demo | _待補 / TODO_ |
 
-**交易員排行榜 / Leaderboard** — 已登入(navbar 顯示真實使用者),Nova Trader 已跟隨並顯示「分配金額 $1000」。
-_Logged in; Nova Trader followed with a $1000 allocation._
+**交易員排行榜 / Leaderboard** — 已登入(navbar 顯示真實使用者),Nova Trader($1000)與 Luna Ortiz($500)已跟隨並顯示各自的分配金額;頭像用色為通過色盲安全驗證的分類色序。
+_Logged in; two traders followed with their own allocations. Avatar hues follow the CVD-validated categorical order._
 
 ![Leaderboard](docs/screenshots/leaderboard.jpg)
 
-**我的跟單儀表板 / My-copies dashboard** — 組合月盈利 **+$124.00** 由後端以 decimal.js 依 `$1000 × 12.4%` 精確計算(非前端浮點加總)。
-_Aggregate P&L (+$124.00) is computed server-side with decimal.js from the user's allocation._
+**我的跟單儀表板 / My-copies dashboard** — 組合月盈利 **+$233.00** 由後端以 decimal.js 依各筆配置精確聚合(`$1000 × 12.4% + $500 × 21.8%`,非前端浮點加總);資金曲線帶端點直接標註,最新資產值不靠 hover 即可讀取。
+_Aggregate P&L (+$233.00) is computed server-side with decimal.js across allocations; equity curves carry direct end-labels so the latest values are readable without hovering._
 
 ![Dashboard with Decimal P&L](docs/screenshots/following-pnl.jpg)
 
