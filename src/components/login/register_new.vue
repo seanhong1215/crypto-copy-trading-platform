@@ -62,11 +62,10 @@
           <span class="downxy" @click="downXY">{{$t('register.has_read')}}</span>
         </el-form-item>
         <el-button
-          type="danger"
-          round
+          type="primary"
           @click="register"
           :loading="registerLoading"
-          class="button"
+          class="button signup-btn"
         >{{ $t('register.signup') }}</el-button>
         <p style="text-align: center;padding-top: 10px;">
           <span style="vertical-align: middle;">{{ $t('register.has_account') }}？</span>
@@ -266,7 +265,7 @@ body {
 
 .header > h2 {
   margin: 0;
-  color: #4f46a5;
+  color: var(--ink-primary);
 }
 
 .form {
@@ -278,6 +277,18 @@ body {
 .form > p {
   font-size: 14px;
   text-align: right;
+}
+
+/* 註冊鈕吃品牌 token,不用 Element 預設藍 */
+.signup-btn.el-button--primary {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  transition: background-color 120ms ease;
+}
+.signup-btn.el-button--primary:hover,
+.signup-btn.el-button--primary:focus {
+  background: var(--brand-primary-hover);
+  border-color: var(--brand-primary-hover);
 }
 
 .logo {

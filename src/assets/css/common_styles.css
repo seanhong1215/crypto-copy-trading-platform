@@ -17,15 +17,17 @@
     --ink-muted: #898781;
     --border-hairline: #e1e0d9;
 
-    /* Chart categorical (fixed order, do not cycle) */
+    /* Chart categorical (fixed order, do not cycle)
+       順序即色盲安全機制:此排列通過驗證器的 CVD 與一般視覺區分度檢查
+       (worst adjacent ΔE 19.6),不要任意調換。 */
     --chart-1: #2a78d6;
-    --chart-2: #1baf7a;
-    --chart-3: #eda100;
-    --chart-4: #008300;
-    --chart-5: #4a3aa7;
-    --chart-6: #e34948;
-    --chart-7: #e87ba4;
-    --chart-8: #eb6834;
+    --chart-2: #008300;
+    --chart-3: #e87ba4;
+    --chart-4: #eda100;
+    --chart-5: #1baf7a;
+    --chart-6: #eb6834;
+    --chart-7: #4a3aa7;
+    --chart-8: #e34948;
 }
 
 .iconfont {

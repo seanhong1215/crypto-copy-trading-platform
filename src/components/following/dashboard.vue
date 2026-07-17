@@ -123,9 +123,11 @@ export default {
       }
       const border = cssVar(this.$el, '--border-hairline')
       const muted = cssVar(this.$el, '--ink-muted')
+      const inkPrimary = cssVar(this.$el, '--ink-primary')
       const dates = this.followedTraders[0].equityCurve.map((p) => p.date)
       this.chart.setOption({
-        grid: { left: 60, right: 20, top: 40, bottom: 30 },
+        // 右側留白給端點直接標註(直接標註 = 不 hover 也讀得到最新值)
+        grid: { left: 60, right: 96, top: 40, bottom: 30 },
         tooltip: { trigger: 'axis' },
         legend: {
           top: 0,
@@ -144,13 +146,45 @@ export default {
           splitLine: { lineStyle: { color: border } },
           axisLabel: { color: muted, formatter: (v) => '$' + v.toLocaleString('en-US') }
         },
-        series: this.followedTraders.map((t) => ({
-          name: t.name,
-          type: 'line',
-          data: t.equityCurve.map((p) => p.value),
-          symbol: 'none',
-          lineStyle: { color: resolveAvatarColor(this.$el, t.avatarColor), width: 2 }
-        }))
+        series: this.followedTraders.map((t) => {
+          const lineColor = resolveAvatarColor(this.$el, t.avatarColor)
+          const surface = cssVar(this.$el, '--surface-card')
+          const last = t.equityCurve.length - 1
+          return {
+            name: t.name,
+            type: 'line',
+            // 端點直接標註最新值(ECharts 4 沒有 v5 的 endLabel,改用
+            // 「最後一個資料點單獨給 symbol + label」的 v4 相容做法)。
+            // 文字用墨色 token(文字不穿系列色);端點圓點帶表面色圓環。
+            // 這也是淺色系列的可讀性緩解——值不靠 hover 就可見。
+            data: t.equityCurve.map((p, i) =>
+              i === last
+                ? {
+                    value: p.value,
+                    symbol: 'circle',
+                    symbolSize: 8,
+                    itemStyle: {
+                      color: lineColor,
+                      borderColor: surface,
+                      borderWidth: 2
+                    },
+                    label: {
+                      show: true,
+                      position: 'right',
+                      formatter: (params) =>
+                        '$' + Number(params.value).toLocaleString('en-US'),
+                      color: inkPrimary,
+                      fontSize: 11,
+                      fontWeight: 600
+                    }
+                  }
+                : p.value
+            ),
+            symbol: 'none',
+            lineStyle: { color: lineColor, width: 2 },
+            itemStyle: { color: lineColor }
+          }
+        })
       }, true)
       this.chart.resize()
     }

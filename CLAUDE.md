@@ -69,6 +69,9 @@ Vue 2.5（只用 Options API，沒有 Composition API）+ Vuex 3 + Vue Router 3 
 10 位交易員的資料是從一個小型的 `seeds` 陣列，搭配一個帶種子的線性同餘法亂數產生器（`seededRandom`）產生出來的，這樣每次重新整理頁面時資金曲線／交易紀錄都會是同一組（可重現）。`riskLevel`（風險等級）是透過 `riskLevelFromReturn()` 依 `monthReturnRatePct` 的絕對值換算出來的，不是手動填寫的。之後如果要新增欄位，盡量比照這個做法用既有的 seed 資料換算出來，不要為每位交易員手動寫死數值。
 
 ### 顏色 token（`src/assets/css/common_styles.css` 的 `:root`）
+
+**`--chart-1` 到 `--chart-8` 的順序是色盲安全機制,不是裝飾**——這個排列通過過驗證器的 CVD 與一般視覺區分度檢查（worst adjacent ΔE 19.6;2026-07 曾因舊順序 FAIL 一般視覺門檻而重排過）,不要任意調換順序或插入新色。
+
 顏色都定義成 CSS 自訂屬性（`--brand-primary`、`--surface-page`／`--surface-card`、`--ink-primary`／`--ink-secondary`／`--ink-muted`、盈虧用的 `--color-good`／`--color-critical`、圖表分類色 `--chart-1` 到 `--chart-8` 等），元件都用這些 token 寫樣式（`var(--brand-primary)` 等）。**新元件請不要寫死十六進位色碼**，一律使用現有的 token 名稱。網站目前固定使用亮色主題（先前實驗過的深色模式已完整移除）。
 
 **ECharts 是唯一一個 token 不會自動生效的地方**：canvas 繪圖沒辦法直接讀取 `var()`，所以圖表的顏色設定必須在渲染當下透過 `src/utils/chartTheme.js`（`cssVar(el, '--token名稱')`，內部用 `getComputedStyle` 解析）取得實際顏色值。可以參考 `src/components/leaderboard/detail.vue`、`src/components/following/dashboard.vue` 或 `src/components/market/detail.vue` 的寫法。
@@ -85,6 +88,9 @@ Vue 2.5（只用 Options API，沒有 Composition API）+ Vuex 3 + Vue Router 3 
 - `src/utils/requireLogin.js` — 目前唯一的登入攔截機制；任何新增的、需要登入才能執行的動作都應該包在這個函式裡。
 - `src/utils/chartTheme.js` — `cssVar()`／`resolveAvatarColor()`，用來取得圖表顏色。
 - `src/utils/marketApi.js` — CoinGecko API 的 `fetch` 封裝（價格、K 線）。
+
+### ECharts 版本的坑
+runtime 實際載入的是 **ECharts 4.1.0**（`static/lib/echarts.min.js`,對應 npm 的 echarts 4.1.0）——**v5 才有的 API（如 line 系列的 `endLabel`、`labelLayout`）會被靜默忽略,不報錯也不渲染**。要做「端點直接標註」,用 v4 相容做法:最後一個資料點單獨給 `{value, symbol, symbolSize, itemStyle, label}` 物件（參考 `following/dashboard.vue` 的 renderChart）。
 
 ### ECharts 尺寸相關的坑
 如果在 `mounted()`／`$nextTick` 裡呼叫 `echarts.init()`，有可能會在版面還沒完全穩定時就抓到過小的容器寬度，導致圖表畫出來整個擠在畫面最左邊一小塊。現有的圖表渲染方法都會在 `setOption()` 之後緊接著呼叫 `this.chart.resize()`，強制重新量測容器尺寸——之後新增圖表時請保留這個呼叫。

@@ -181,7 +181,7 @@ body {
 
 .header > h2 {
   margin: 0;
-  color: #4f46a5;
+  color: var(--ink-primary);
 }
 
 .header > h4 {
@@ -206,8 +206,8 @@ body {
   width: 100%;
   height: 46px;
   padding: 0 16px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
   font-family: 'Rubik', sans-serif;
   outline: 0;
   transition: 0.2s;
@@ -215,19 +215,24 @@ body {
 }
 
 .form-field:focus {
-  border-color: #0f7ef1;
+  border-color: var(--brand-primary);
 }
 
 .form > button {
   padding: 12px 10px;
   border: 0;
-  background: linear-gradient(to right, #4cbdf5 0%, #0097ff 100%);
-  border-radius: 3px;
+  background: var(--brand-primary);
+  border-radius: 6px;
   margin-top: 10px;
   color: #fff;
   letter-spacing: 1px;
   font-family: 'Rubik', sans-serif;
   cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.form > button:hover {
+  background: var(--brand-primary-hover);
 }
 
 .header {
