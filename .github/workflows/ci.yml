@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  # 只在 CI 跑後端測試（後端才是有測試/有邏輯的部分）。
+  # 前端沿用舊版 webpack 3 樣板，build 完 process 不會自動 exit（舊樣板已知問題），
+  # 放進 CI 會讓 job 卡住，故不納入；前端可用 `npm run build` 在本機驗證。
+  backend:
+    name: Backend (test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Unit tests (Decimal P&L)
+        run: npm test

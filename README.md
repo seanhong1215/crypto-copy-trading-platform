@@ -1,5 +1,7 @@
 # FinFolio — 加密貨幣跟單交易平台 <br/><sub>A Crypto Copy-Trading Leaderboard Platform</sub>
 
+[![CI](https://github.com/seanhong1215/FinFolio/actions/workflows/ci.yml/badge.svg)](https://github.com/seanhong1215/FinFolio/actions/workflows/ci.yml)
+
 > 交易員排行榜、含損益(P&L)圖表的交易員詳情、跟單設定、我的跟單儀表板、即時行情與 K 線、通知中心。
 > A copy-trading portfolio site: trader leaderboard, P&L charts, follow/copy settings, a "my copies" dashboard, live market quotes with candlestick charts, and a notification center.
 
@@ -52,18 +54,15 @@
 |---|---|
 | 🔗 線上 Demo / Live Demo | _待補 / TODO_ |
 
-<!-- 建議補上以下截圖 / Suggested screenshots:
-  1. 交易員排行榜 Leaderboard
-  2. 交易員詳情 + 資金曲線 Trader detail with equity curve
-  3. 跟單設定彈窗 Copy-settings modal
-  4. 我的跟单儀表板 My-copies dashboard
-  5. 即時行情 + K 線 Market page with candlestick chart
--->
+**交易員排行榜 / Leaderboard** — 已登入(navbar 顯示真實使用者),Nova Trader 已跟隨並顯示「分配金額 $1000」。
+_Logged in; Nova Trader followed with a $1000 allocation._
 
-```text
-[ 截圖佔位 / screenshot placeholder ]
-docs/screenshots/ 底下放圖後，改成 ![Leaderboard](docs/screenshots/leaderboard.png)
-```
+![Leaderboard](docs/screenshots/leaderboard.jpg)
+
+**我的跟單儀表板 / My-copies dashboard** — 組合月盈利 **+$124.00** 由後端以 decimal.js 依 `$1000 × 12.4%` 精確計算(非前端浮點加總)。
+_Aggregate P&L (+$124.00) is computed server-side with decimal.js from the user's allocation._
+
+![Dashboard with Decimal P&L](docs/screenshots/following-pnl.jpg)
 
 ---
 
