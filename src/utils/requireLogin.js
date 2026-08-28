@@ -1,13 +1,14 @@
 import store from '@/store'
 import router from '@/router'
 import i18n from '@/i18n/i18n'
+import { ElMessage } from 'element-plus'
 
-// Follow 等需要登录的操作统一走这里；未登录则提示并导向登录页
+// 需要登入的操作統一由此處處理；未登入時顯示提示並導向登入頁。
 export default function requireLogin(fn) {
   if (store.state.TOKEN) {
     fn()
   } else {
-    ELEMENT.Message.warning(i18n.tc('message.please_login'))
-    router.push('/login')
+    ElMessage.warning(i18n.global.t('message.please_login'))
+    router.push({ path: '/login', query: { redirect: router.currentRoute.value.fullPath } })
   }
 }

@@ -13,7 +13,7 @@
       <div class="fw-empty" v-else-if="!followedTraders.length">
         <p class="fw-empty-title">{{ $t('following.empty_title') }}</p>
         <p class="fw-empty-desc">{{ $t('following.empty_desc') }}</p>
-        <router-link to="/leaderboard" tag="button" class="fw-cta">{{ $t('following.browse_cta') }}</router-link>
+        <router-link to="/leaderboard" class="fw-cta">{{ $t('following.browse_cta') }}</router-link>
       </div>
 
       <div v-else>
@@ -51,6 +51,7 @@
 
 <script>
 import traders from '@/data/mockTraders'
+import * as echarts from '@/utils/echarts'
 import requireLogin from '@/utils/requireLogin'
 import { api } from '@/utils/api'
 import { cssVar, resolveAvatarColor } from '@/utils/chartTheme'
@@ -61,7 +62,7 @@ export default {
   data() {
     return {
       chart: null,
-      // 聚合损益由后端以 Decimal 计算（依使用者每笔跟单的 allocationUsd）
+      // 組合損益由資料層依每筆跟單的 allocationUsd 計算。
       pnlData: null
     }
   },
@@ -72,11 +73,11 @@ export default {
     followedTraders() {
       return traders.filter((t) => !!this.$store.state.followedTraders[t.id])
     },
-    // 从后端结果取值（字串金额 → Number 供样式判断正负）
+    // 將字串金額轉為 Number，供畫面判斷正負值樣式。
     aggregatePnlUsd() {
       return this.pnlData ? Number(this.pnlData.aggregatePnlUsd) : 0
     },
-    // 显示时保留后端 Decimal 的两位精度字串
+    // 顯示時保留兩位小數精度。
     aggregatePnlDisplay() {
       const raw = this.pnlData ? this.pnlData.aggregatePnlUsd : '0.00'
       const n = Number(raw)
@@ -105,7 +106,7 @@ export default {
     goLogin() {
       requireLogin(() => {})
     },
-    // 向后端取 Decimal 聚合损益（失败静默保留旧值）
+    // 取得組合損益；失敗時保留前一次資料。
     loadPnl() {
       if (!this.isLoggedIn) return
       api.getPnl().then((d) => { this.pnlData = d }).catch(() => {})

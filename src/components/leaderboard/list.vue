@@ -18,7 +18,6 @@
         <el-input
           v-model="searchQuery"
           class="lb-search"
-          prefix-icon="el-icon-search"
           :placeholder="$t('leaderboard.search_placeholder')"
           clearable
         />

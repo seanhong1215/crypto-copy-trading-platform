@@ -19,11 +19,11 @@
         <div class="notif-time">{{ n.time }}</div>
       </div>
     </div>
-    <span slot="reference" class="notif-trigger">
-      <el-badge :value="unreadCount" :hidden="unreadCount === 0">
-        <i class="el-icon-bell"></i>
-      </el-badge>
-    </span>
+    <template #reference>
+      <span class="notif-trigger" aria-label="通知">
+        <el-badge :value="unreadCount" :hidden="unreadCount === 0">🔔</el-badge>
+      </span>
+    </template>
   </el-popover>
 </template>
 
@@ -56,7 +56,7 @@ export default {
   cursor: pointer;
   font-size: 18px;
   vertical-align: middle;
-  margin-right: 16px;
+  margin-right: 4px;
   display: inline-block;
 }
 .notif-header {

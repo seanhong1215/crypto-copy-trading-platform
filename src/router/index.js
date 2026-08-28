@@ -1,106 +1,37 @@
-import basic from '@/components/common/basic'
-import i18n from '@/i18n/i18n'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
+import i18n from '@/i18n/i18n'
+import BasicLayout from '@/components/common/basic.vue'
 
-NProgress.configure({ easing: 'ease', speed: 500, showSpinner: false })
+const routes = [
+  { path: '/login', component: () => import('@/components/login/login_new.vue'), meta: { title: 'login.menu' } },
+  { path: '/register', component: () => import('@/components/login/register_new.vue'), meta: { title: 'register.menu' } },
+  {
+    path: '/',
+    component: BasicLayout,
+    children: [
+      { path: '', component: () => import('@/components/index_new.vue'), meta: { title: 'home.menu' } },
+      { path: 'leaderboard', component: () => import('@/components/leaderboard/list.vue'), meta: { title: 'leaderboard.menu' } },
+      { path: 'trader/:id', component: () => import('@/components/leaderboard/detail.vue'), meta: { title: 'trader_detail.menu' } },
+      { path: 'following', component: () => import('@/components/following/dashboard.vue'), meta: { title: 'following.menu' } },
+      { path: 'market', component: () => import('@/components/market/list.vue'), meta: { title: 'market.menu' } },
+      { path: 'market/:id', component: () => import('@/components/market/detail.vue'), meta: { title: 'market_detail.menu' } }
+    ]
+  },
+  { path: '/:pathMatch(.*)*', redirect: '/' }
+]
 
-// 登录
-const login = () => import ( /* webpackChunkName: "group-login" */ '@/components/login/login_new');
-// 注册
-const register = () => import ( /* webpackChunkName: "group-register" */ '@/components/login/register_new');
-
-//首页
-const index = () => import ('@/components/index_new');
-//排行榜
-const leaderboardList = () => import ( /* webpackChunkName: "group-leaderboard" */ '@/components/leaderboard/list');
-//交易员详情
-const traderDetail = () => import ( /* webpackChunkName: "group-leaderboard" */ '@/components/leaderboard/detail');
-//我的跟单
-const followingDashboard = () => import ( /* webpackChunkName: "group-following" */ '@/components/following/dashboard');
-//行情
-const marketList = () => import ( /* webpackChunkName: "group-market" */ '@/components/market/list');
-//行情详情（K线）
-const marketDetail = () => import ( /* webpackChunkName: "group-market" */ '@/components/market/detail');
-
-const router = new VueRouter({
-    routes: [{
-        path: '/login',
-        name: '登录',
-        meta: {
-            title: 'login.menu',
-        },
-        component: login,
-    },{
-        path: '/register',
-        name: '注册',
-        meta: {
-            title: 'register.menu',
-        },
-        component: register,
-    },{
-        path: '',
-        component: basic,
-        children: [{
-            path: '/',
-            name: '首页',
-            meta: {
-                title: 'home.menu',
-            },
-            component: index,
-        },{
-            path: '/leaderboard',
-            name: '排行榜',
-            meta: {
-                title: 'leaderboard.menu',
-            },
-            component: leaderboardList,
-        },{
-            path: '/trader/:id',
-            name: '交易员详情',
-            meta: {
-                title: 'trader_detail.menu',
-            },
-            component: traderDetail,
-        },{
-            path: '/following',
-            name: '我的跟单',
-            meta: {
-                title: 'following.menu',
-            },
-            component: followingDashboard,
-        },{
-            path: '/market',
-            name: '行情',
-            meta: {
-                title: 'market.menu',
-            },
-            component: marketList,
-        },{
-            path: '/market/:id',
-            name: '行情详情',
-            meta: {
-                title: 'market_detail.menu',
-            },
-            component: marketDetail,
-        }, {
-            path: '*',
-            redirect: '/'
-        }]
-    }],
-    scrollBehavior() {
-        return { x: 0, y: 0 }
-    }
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+  scrollBehavior: () => ({ top: 0 })
 })
 
-router.beforeEach((to, from, next) => {
-    NProgress.start()
-    document.title = i18n.tc(to.meta.title)
-    next()
+router.beforeEach(to => {
+  NProgress.start()
+  document.title = `${i18n.global.t(to.meta.title || 'home.menu')}｜FinFolio`
 })
+router.afterEach(() => NProgress.done())
+router.onError(() => NProgress.done())
 
-router.afterEach((to, from) => {
-    NProgress.done()
-})
-
-export default router;
+export default router

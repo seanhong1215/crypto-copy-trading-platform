@@ -1,8 +1,11 @@
 // 後端 API 封裝 / Backend API client
 //
-// 所有請求走 /api 前綴，由 webpack devServer 的 proxy 轉發到後端(見 config/index.js)。
+// 後端模式會將請求送到同網域的 /api；GitHub Pages 預設使用 Demo adapter。
 // token 直接從 sessionStorage 讀取(避免與 store 互相 import 造成循環相依)。
 
+import { demoApi } from '@/utils/demoApi'
+
+export const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE !== 'false'
 const BASE = '/api'
 
 async function request(path, { method = 'GET', body } = {}) {
@@ -29,7 +32,7 @@ async function request(path, { method = 'GET', body } = {}) {
   return data
 }
 
-export const api = {
+const serverApi = {
   register: (payload) => request('/auth/register', { method: 'POST', body: payload }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload }),
   getFollows: () => request('/follows'),
@@ -38,5 +41,9 @@ export const api = {
   deleteFollow: (traderId) => request('/follows/' + traderId, { method: 'DELETE' }),
   getPnl: () => request('/follows/pnl')
 }
+
+// The portfolio defaults to a browser-only adapter in both development and
+// production. Set VITE_DEMO_MODE=false only when an API server is available.
+export const api = IS_DEMO_MODE ? demoApi : serverApi
 
 export default api

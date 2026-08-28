@@ -24,6 +24,7 @@
 
 <script>
 import { fetchOhlc, MARKET_SYMBOLS } from '@/utils/marketApi'
+import * as echarts from '@/utils/echarts'
 import { cssVar } from '@/utils/chartTheme'
 
 export default {
@@ -79,7 +80,7 @@ export default {
       const labels = this.ohlcRaw.map(([ts]) => {
         const d = new Date(ts)
         return this.days === 1
-          ? d.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' })
+          ? d.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit' })
           : d.toISOString().slice(0, 10)
       })
       const candles = this.ohlcRaw.map(([, open, high, low, close]) => [open, close, low, high])

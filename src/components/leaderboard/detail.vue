@@ -59,7 +59,7 @@
           <el-table-column prop="time" :label="$t('trader_detail.time')" />
           <el-table-column prop="symbol" :label="$t('trader_detail.symbol')" />
           <el-table-column :label="$t('trader_detail.side')">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span :class="scope.row.side === 'buy' ? 'good' : 'critical'">
                 {{ scope.row.side === 'buy' ? $t('trader_detail.buy') : $t('trader_detail.sell') }}
               </span>
@@ -67,7 +67,7 @@
           </el-table-column>
           <el-table-column prop="volume" :label="$t('trader_detail.volume')" />
           <el-table-column :label="$t('trader_detail.pnl')">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span :class="scope.row.pnlUsd >= 0 ? 'good' : 'critical'">
                 {{ signedAmount(scope.row.pnlUsd) }}
               </span>
@@ -76,12 +76,13 @@
         </el-table>
       </div>
     </div>
-    <copy-settings-modal v-if="trader" :trader="trader" :visible.sync="showCopyModal" />
+    <copy-settings-modal v-if="trader" :trader="trader" v-model:visible="showCopyModal" />
   </div>
 </template>
 
 <script>
 import traders from '@/data/mockTraders'
+import * as echarts from '@/utils/echarts'
 import requireLogin from '@/utils/requireLogin'
 import { cssVar } from '@/utils/chartTheme'
 import CopySettingsModal from './copySettingsModal.vue'

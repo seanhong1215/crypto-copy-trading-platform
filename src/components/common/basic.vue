@@ -7,8 +7,8 @@
 </template>
 
 <script>
-    import CNavbar from "@/components/common/navbar";
-    import CFooter from "@/components/common/footer";
+    import CNavbar from "@/components/common/navbar.vue";
+    import CFooter from "@/components/common/footer.vue";
     export default {
         components: {
             CNavbar, CFooter

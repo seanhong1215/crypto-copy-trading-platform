@@ -55,7 +55,7 @@ export default {
     this.load()
     this.pollTimer = setInterval(this.load, POLL_INTERVAL_MS)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.pollTimer)
   },
   methods: {
@@ -81,7 +81,7 @@ export default {
       return price >= 1 ? price.toFixed(2) : price.toFixed(4)
     },
     formatTime(date) {
-      return date.toLocaleTimeString('zh-CN', { hour12: false })
+      return date.toLocaleTimeString('zh-TW', { hour12: false })
     }
   }
 }

@@ -32,7 +32,7 @@
         <div class="lb-stat-value">${{ formatNumber(trader.accountBalanceUsd) }}</div>
       </div>
     </div>
-    <copy-settings-modal :trader="trader" :visible.sync="showCopyModal" />
+    <copy-settings-modal :trader="trader" v-model:visible="showCopyModal" />
   </div>
 </template>
 

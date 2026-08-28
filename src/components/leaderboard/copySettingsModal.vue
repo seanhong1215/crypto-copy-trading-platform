@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :visible.sync="innerVisible"
+    v-model="innerVisible"
     :append-to-body="true"
     width="420px"
     :title="$t('copy_settings.title')"
@@ -25,10 +25,10 @@
       </el-radio-group>
       <div class="cs-hint">{{ $t('copy_settings.stop_loss_hint') }}</div>
     </div>
-    <span slot="footer">
+    <template #footer>
       <el-button @click="innerVisible = false">{{ $t('copy_settings.cancel') }}</el-button>
       <el-button type="primary" @click="confirm">{{ $t('copy_settings.confirm') }}</el-button>
-    </span>
+    </template>
   </el-dialog>
 </template>
 
