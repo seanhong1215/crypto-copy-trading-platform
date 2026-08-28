@@ -1,7 +1,7 @@
 import traders from '@/data/mockTraders'
 
-// 从「目前跟随的交易员」的模拟交易纪录衍生出通知清单，不是另外写死一份通知资料
-// mockTraders.js 里的交易纪录是依时间由旧到新排列，取最新的要从阵列尾端取
+// 從目前跟隨的交易員紀錄產生通知清單，不另外維護重複資料。
+// 交易紀錄依時間由舊到新排列，因此從陣列尾端取得最新資料。
 export function deriveNotifications(followedTraders) {
   const followedIds = Object.keys(followedTraders).map(Number)
   const list = []

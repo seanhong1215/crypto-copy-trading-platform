@@ -1,4 +1,4 @@
-// 演示用的模拟交易员数据，纯前端静态数据，不连接任何真实后端或交易所
+// 展示用的模擬交易員資料，為純前端靜態資料，不連接真實後端或交易所。
 const CHART_COLORS = [
   'var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)',
   'var(--chart-5)', 'var(--chart-6)', 'var(--chart-7)', 'var(--chart-8)'
@@ -6,7 +6,7 @@ const CHART_COLORS = [
 
 const SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'XRP/USDT']
 
-// 用简单的伪随机数生成器产生可重现的资金曲线，避免手写几百个数字
+// 使用簡單的偽隨機數產生器建立可重現的資金曲線，避免手動維護大量數值。
 function seededRandom(seed) {
   let s = seed
   return function () {
@@ -33,7 +33,7 @@ function buildEquityCurve(seed, startValue, trendPctPerDay, days = 30) {
   return points
 }
 
-// 依月收益率幅度换算风险等级，避免手动为每笔资料指定
+// 依月報酬率換算風險等級，避免逐筆指定。
 function riskLevelFromReturn(pct) {
   const magnitude = Math.abs(pct)
   if (magnitude < 6) return 'low'

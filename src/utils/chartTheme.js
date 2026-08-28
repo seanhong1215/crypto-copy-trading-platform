@@ -1,9 +1,9 @@
-// 解析当前主题下 CSS 自定义属性的实际颜色值，供 ECharts 使用（canvas 无法直接读取 var()）
+// 解析目前主題的 CSS 自訂屬性，供無法直接讀取 var() 的 ECharts canvas 使用。
 export function cssVar(el, name) {
   return getComputedStyle(el).getPropertyValue(name).trim()
 }
 
-// avatarColor 存的是 'var(--chart-1)' 这种字符串，取出变量名后解析成实际颜色
+// avatarColor 儲存 var(--chart-1) 格式，先取得變數名稱再解析實際色彩。
 export function resolveAvatarColor(el, avatarColor) {
   const match = /var\((--[\w-]+)\)/.exec(avatarColor)
   return match ? cssVar(el, match[1]) : avatarColor
